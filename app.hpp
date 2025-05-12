@@ -23,7 +23,7 @@ namespace vhl
 		HuiApp(const HuiApp&) = delete;
 		HuiApp& operator=(const HuiApp&) = delete;
 
-		void createFractal( std::vector<VhlModel::Vertex>& vertices, int level, glm::vec2 top, glm::vec2 left, glm::vec2 right);
+		void createFractal( std::vector<VhlModel::Vertex>& vertices, int level, glm::vec3 top, glm::vec3 left, glm::vec3 right);
 
 		void run();
 

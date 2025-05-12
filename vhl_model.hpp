@@ -14,14 +14,14 @@ namespace vhl {
     class VhlModel {
     public:
         struct Vertex {
-            glm::vec2 position;
+            glm::vec3 position;
             glm::vec3 color;
 
 
             static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
             static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
-            Vertex(glm::vec2 pos) : position(pos) { color = glm::vec3{0.0f, 0.0f, 1.0f}; }
-            Vertex(glm::vec2 pos, glm::vec3 col) : position(pos), color(col) {}
+            Vertex(glm::vec3 pos) : position(pos) { color = glm::vec3{0.0f, 0.0f, 1.0f}; }
+            Vertex(glm::vec3 pos, glm::vec3 col) : position(pos), color(col) {}
 
         };
 

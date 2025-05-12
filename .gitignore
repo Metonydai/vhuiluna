@@ -31,8 +31,12 @@
 *.out
 *.app
 
-.gitignore
+# .gitignore
 .vscode/
+
 
 # Build Dir
 build/
+
+# Build *.spv
+*/*.spv
