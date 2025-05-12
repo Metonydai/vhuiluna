@@ -1,5 +1,6 @@
 #pragma once
 
+#include "vhl_camera.hpp"
 #include "vhl_device.hpp"
 #include "vhl_game_object.hpp"
 #include "vhl_pipeline.hpp"
@@ -19,7 +20,10 @@ namespace vhl
 		SimpleRenderSystem(const SimpleRenderSystem&) = delete;
 		SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
 
-		void renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VhlGameObject>& gameObjects);
+		void renderGameObjects(
+			VkCommandBuffer commandBuffer, 
+			std::vector<VhlGameObject>& gameObjects,
+			const VhlCamera& camera);
 
 	private:
 		void loadGameObjects();

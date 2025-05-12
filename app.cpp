@@ -22,15 +22,19 @@ namespace vhl
     void HuiApp::run() 
     {
         SimpleRenderSystem simpleRenderSystem(m_VhlDevice, m_VhlRenderer.getSwapChainRenderPass());
+        VhlCamera camera{};
 
         while (!m_VhlWindow.shouldClose())
         {
             glfwPollEvents();
+            float aspect = m_VhlRenderer.getAspectRatio();
+            //camera.setOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
+            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
 
             if (auto commandBuffer = m_VhlRenderer.beginFrame())
             {
                 m_VhlRenderer.beginSwapChainRenderPass(commandBuffer);
-                simpleRenderSystem.renderGameObjects(commandBuffer, m_GameObjects);
+                simpleRenderSystem.renderGameObjects(commandBuffer, m_GameObjects, camera);
                 m_VhlRenderer.endSwapChainRenderPass(commandBuffer);
                 m_VhlRenderer.endFrame();
             }
@@ -112,11 +116,6 @@ namespace vhl
         //std::vector<VhlModel::Vertex> vertices {};
         //createFractal(vertices, 6, { 0.0f, -1.1546f, 0.f }, {-1.0f,  0.5773f, 0.f }, { 1.0f,  0.5773f, 0.f } );
 
-        for (auto& vert : vertices)
-        {
-            vert.position.x /= aspectRatio;
-        }
-
         auto vhlModel = std::make_shared<VhlModel>(m_VhlDevice, vertices);
         auto triangle = VhlGameObject::createGameObject();
         triangle.model = vhlModel;
@@ -130,9 +129,9 @@ namespace vhl
         std::shared_ptr<VhlModel> vhlModel = createCubeModel(m_VhlDevice, {.0f, .0f, .0f});
         auto cube = VhlGameObject::createGameObject();
         cube.model = vhlModel;
-        cube.transform.translation = { .0f, .0f, .5f };
+        cube.transform.translation = { .0f, .0f, 2.5f };
         cube.transform.scale = { .5f, .5f, .5f };
-    
+        
         m_GameObjects.push_back(std::move(cube));
 
     }

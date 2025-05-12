@@ -19,6 +19,7 @@ namespace vhl {
         VhlRenderer& operator=(const VhlRenderer&) = delete;
 
         VkRenderPass getSwapChainRenderPass() const { return m_VhlSwapChain->getRenderPass(); }
+        float getAspectRatio() const { return m_VhlSwapChain->extentAspectRatio(); }
         bool isFrameInProgress() const { return m_IsFrameStarted; }
 
         VkCommandBuffer getCurrentCommandBuffer() const 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "vhl_camera.hpp"
 #include "vhl_device.hpp"
 #include "vhl_game_object.hpp"
 #include "vhl_renderer.hpp"
@@ -14,7 +15,7 @@ namespace vhl
 	class HuiApp
 	{
 	public:
-		static constexpr int WIDTH = 1080;
+		static constexpr int WIDTH = 1920;
 		static constexpr int HEIGHT = 1080;
 
 		HuiApp();
