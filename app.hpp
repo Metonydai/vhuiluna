@@ -1,10 +1,9 @@
 #pragma once
 
-#include "vhl_window.hpp"
-#include "vhl_pipeline.hpp"
-#include "vhl_swap_chain.hpp"
 #include "vhl_device.hpp"
-#include "vhl_model.hpp"
+#include "vhl_game_object.hpp"
+#include "vhl_renderer.hpp"
+#include "vhl_window.hpp"
 
 // std
 #include <memory>
@@ -15,7 +14,7 @@ namespace vhl
 	class HuiApp
 	{
 	public:
-		static constexpr int WIDTH = 1920;
+		static constexpr int WIDTH = 1080;
 		static constexpr int HEIGHT = 1080;
 
 		HuiApp();
@@ -29,24 +28,12 @@ namespace vhl
 		void run();
 
 	private:
-		void loadModels();
-
-		void createPipelineLayout();
-		void createPipeline();
-		void createCommandBuffers();
-		void freeCommandBuffers();
-		void drawFrame(); 
-		void recreateSwapChain();
-		void recordCommandBuffer(int imageIndex);
+		void loadGameObjects();
 
 		VhlWindow m_VhlWindow{ WIDTH, HEIGHT, "Hello Huiyu" };
 		VhlDevice m_VhlDevice{ m_VhlWindow };
-		//VhlSwapChain m_VhlSwapChain{ m_VhlDevice, m_VhlWindow.getExtent() };
-		std::unique_ptr<VhlSwapChain> m_VhlSwapChain;
-		//VhlPipeline m_VhlPipeline{ m_VhlDevice, "shaders/shader.vert.spv", "shaders/shader.frag.spv", VhlPipeline::defaultPipelineConfigInfo(WIDTH, HEIGHT) };
-		std::unique_ptr<VhlPipeline> m_VhlPipeline;
-		VkPipelineLayout m_PipelineLayout;
-		std::vector<VkCommandBuffer> m_CommandBuffers;
-		std::unique_ptr<VhlModel> m_VhlModel;
+		VhlRenderer m_VhlRenderer{ m_VhlWindow, m_VhlDevice };
+
+		std::vector<VhlGameObject> m_GameObjects;
 	};
 }

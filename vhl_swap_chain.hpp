@@ -42,6 +42,11 @@ namespace vhl
         VkResult acquireNextImage(uint32_t* imageIndex);
         VkResult submitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* imageIndex);
 
+        bool compareSwapFormats(const VhlSwapChain& swapChain) const 
+        {
+            return swapChain.m_SwapChainDepthFormat == m_SwapChainDepthFormat &&
+                swapChain.m_SwapChainImageFormat == m_SwapChainImageFormat;
+        }
     private:
         void init();
         void createSwapChain();
@@ -59,6 +64,7 @@ namespace vhl
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
 
         VkFormat m_SwapChainImageFormat;
+        VkFormat m_SwapChainDepthFormat;
         VkExtent2D m_SwapChainExtent;
 
         std::vector<VkFramebuffer> m_SwapChainFramebuffers;

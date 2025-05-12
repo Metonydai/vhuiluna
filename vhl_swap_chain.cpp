@@ -326,6 +326,7 @@ namespace vhl {
     void VhlSwapChain::createDepthResources() 
     {
         VkFormat depthFormat = findDepthFormat();
+        m_SwapChainDepthFormat = depthFormat;
         VkExtent2D swapChainExtent = getSwapChainExtent();
 
         m_DepthImages.resize(imageCount());
