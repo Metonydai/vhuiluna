@@ -1,5 +1,6 @@
 #include "app.hpp"
 
+#include "keyboard_movement_controller.hpp"
 #include "simple_renderer_system.hpp"
 
 #define GLM_FORCE_RADIANS
@@ -8,6 +9,7 @@
 #include <glm/gtc/constants.hpp>
 
 #include <stdexcept>
+#include <chrono>
 #include <array>
 
 namespace vhl 
@@ -23,13 +25,29 @@ namespace vhl
     {
         SimpleRenderSystem simpleRenderSystem(m_VhlDevice, m_VhlRenderer.getSwapChainRenderPass());
         VhlCamera camera{};
+        //camera.setViewDirection(glm::vec3(0.f), glm::vec3(0.5f, 0.f, 1.f));
+        camera.setViewTarget(glm::vec3(0.f, -1.f, -1.f), glm::vec3(0.f, 0.f, 2.5f));
+
+        auto viewerObject = VhlGameObject::createGameObject();
+        KeyboardMovementController cameraController{};
+
+        auto currentTime = std::chrono::high_resolution_clock::now();
 
         while (!m_VhlWindow.shouldClose())
         {
             glfwPollEvents();
+
+            auto newTime = std::chrono::high_resolution_clock::now();
+            float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
+            currentTime = newTime;
+
+            cameraController.moveInPlaneXZ(m_VhlWindow.getGLFWwindow(), frameTime, viewerObject);
+            camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
+
             float aspect = m_VhlRenderer.getAspectRatio();
-            //camera.setOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
-            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
+            float a = 4.0;
+            camera.setOrthographicProjection(-aspect*a, aspect*a, -a, a, -a, a);
+            //camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
 
             if (auto commandBuffer = m_VhlRenderer.beginFrame())
             {

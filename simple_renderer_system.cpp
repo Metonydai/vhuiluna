@@ -9,7 +9,8 @@
 
 namespace vhl 
 {
-    struct SimplePushConstantData {
+    struct SimplePushConstantData 
+    {
         glm::mat4 transform{1.f};
         //glm::vec2 offset;
         alignas(16) glm::vec3 color;
@@ -64,15 +65,14 @@ namespace vhl
     {
         m_VhlPipeline->bind(commandBuffer);
 
+        auto projectView = camera.getProjection() * camera.getView();
+
         for (auto& obj : gameObjects) 
         {
-            obj.transform.rotation.z = glm::mod(obj.transform.rotation.z + 0.0003f, glm::two_pi<float>());
-            obj.transform.rotation.y = glm::mod(obj.transform.rotation.y + 0.00015f, glm::two_pi<float>());
-        
             SimplePushConstantData push{};
             //push.offset = obj.transform.translation;
             push.color = obj.color;
-            push.transform = camera.getProjection() * obj.transform.mat4();
+            push.transform = projectView * obj.transform.mat4();
         
             vkCmdPushConstants(
                 commandBuffer,

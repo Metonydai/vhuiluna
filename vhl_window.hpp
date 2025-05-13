@@ -20,6 +20,7 @@ namespace vhl
 		VkExtent2D getExtent() { return { static_cast<uint32_t>(m_Width), static_cast<uint32_t>(m_Height) }; }
 		bool wasWindowResized() const { return m_FramebufferResized; }
 		void resetWindowResizedFlag() { m_FramebufferResized = false; }
+		GLFWwindow* getGLFWwindow() const { return m_Window; };
 
 		void createWindowSurface(VkInstance instance, VkSurfaceKHR* pSurface);
 
