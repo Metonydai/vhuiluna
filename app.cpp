@@ -1,6 +1,7 @@
 #include "app.hpp"
 
 #include "keyboard_movement_controller.hpp"
+#include "vhl_buffer.hpp"
 #include "simple_renderer_system.hpp"
 
 #define GLM_FORCE_RADIANS
@@ -14,8 +15,19 @@
 
 namespace vhl 
 {
+    struct GlobalUBO
+    {
+        glm::mat4 projectionView{1.f};
+        glm::vec3 lightDirection = glm::normalize(glm::vec3{1.f, -3.f, -1.f});
+    };
+
     HuiApp::HuiApp() 
     {
+        m_GlobalPool = VhlDescriptorPool::Builder(m_VhlDevice)
+            .setMaxSets(VhlSwapChain::MAX_FRAMES_IN_FLIGHT)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VhlSwapChain::MAX_FRAMES_IN_FLIGHT)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VhlSwapChain::MAX_FRAMES_IN_FLIGHT)
+            .build();
         loadGameObjects();
     }
       
@@ -23,7 +35,35 @@ namespace vhl
 
     void HuiApp::run() 
     {
-        SimpleRenderSystem simpleRenderSystem(m_VhlDevice, m_VhlRenderer.getSwapChainRenderPass());
+        std::vector<std::unique_ptr<VhlBuffer>> uboBuffers(VhlSwapChain::MAX_FRAMES_IN_FLIGHT);
+        for (int i = 0; i < uboBuffers.size(); i++)
+        {
+            uboBuffers[i] = std::make_unique<VhlBuffer>(
+                m_VhlDevice,
+                sizeof(GlobalUBO),
+                1,
+                VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+            uboBuffers[i]->map();
+        }
+
+        auto globalSetLayout = VhlDescriptorSetLayout::Builder(m_VhlDevice)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+            .build();
+
+        std::vector<VkDescriptorSet> globalDescriptorSets(VhlSwapChain::MAX_FRAMES_IN_FLIGHT);
+        for (int i = 0; i < globalDescriptorSets.size(); i++)
+        {
+            auto bufferInfo = uboBuffers[i]->descriptorInfo();
+            VhlDescriptorWriter(*globalSetLayout, *m_GlobalPool)
+                .writeBuffer(0, &bufferInfo)
+                .build(globalDescriptorSets[i]);
+        }
+
+        SimpleRenderSystem simpleRenderSystem(
+            m_VhlDevice, 
+            m_VhlRenderer.getSwapChainRenderPass(), 
+            globalSetLayout->getDescriptorSetLayout());
         VhlCamera camera{};
         //camera.setViewDirection(glm::vec3(0.f), glm::vec3(0.5f, 0.f, 1.f));
         //camera.setViewTarget(glm::vec3(-2.f, -2.f, 2.f), glm::vec3(0.f, 0.f, 2.5f));
@@ -51,8 +91,17 @@ namespace vhl
 
             if (auto commandBuffer = m_VhlRenderer.beginFrame())
             {
+                int frameIndex = m_VhlRenderer.getFrameIndex();
+                FrameInfo frameInfo{frameIndex, frameTime, commandBuffer, camera, globalDescriptorSets[frameIndex]};
+                // update
+                GlobalUBO ubo{};
+                ubo.projectionView = camera.getProjection() * camera.getView();
+                uboBuffers[frameIndex]->writeToBuffer(&ubo);
+                uboBuffers[frameIndex]->flush();
+
+                // render
                 m_VhlRenderer.beginSwapChainRenderPass(commandBuffer);
-                simpleRenderSystem.renderGameObjects(commandBuffer, m_GameObjects, camera);
+                simpleRenderSystem.renderGameObjects(frameInfo, m_GameObjects);
                 m_VhlRenderer.endSwapChainRenderPass(commandBuffer);
                 m_VhlRenderer.endFrame();
             }

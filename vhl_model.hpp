@@ -1,6 +1,7 @@
 #pragma once
 
 #include "vhl_device.hpp"
+#include "vhl_buffer.hpp"
 
 // libs
 #define GLM_FORCE_RADIANS
@@ -58,13 +59,11 @@ namespace vhl {
 
         VhlDevice& m_VhlDevice;
 
-        VkBuffer m_VertexBuffer;
-        VkDeviceMemory m_VertexBufferMemory;
+        std::unique_ptr<VhlBuffer> m_VertexBuffer;
         uint32_t m_VertexCount;
         
         bool m_HasIndexBuffer = false;
-        VkBuffer m_IndexBuffer;
-        VkDeviceMemory m_IndexBufferMemory;
+        std::unique_ptr<VhlBuffer> m_IndexBuffer;
         uint32_t m_IndexCount;
     };
 }  // namespace Vhl

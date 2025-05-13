@@ -2,6 +2,7 @@
 
 #include "vhl_camera.hpp"
 #include "vhl_device.hpp"
+#include "vhl_frame_info.hpp"
 #include "vhl_game_object.hpp"
 #include "vhl_pipeline.hpp"
 
@@ -14,21 +15,20 @@ namespace vhl
 	class SimpleRenderSystem
 	{
 	public:
-		SimpleRenderSystem(VhlDevice& device, VkRenderPass renderPass);
+		SimpleRenderSystem(VhlDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
 		~SimpleRenderSystem();
 
 		SimpleRenderSystem(const SimpleRenderSystem&) = delete;
 		SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
 
 		void renderGameObjects(
-			VkCommandBuffer commandBuffer, 
-			std::vector<VhlGameObject>& gameObjects,
-			const VhlCamera& camera);
+			FrameInfo& frameInfo,
+			std::vector<VhlGameObject>& gameObjects);
 
 	private:
 		void loadGameObjects();
 
-		void createPipelineLayout();
+		void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
 		void createPipeline(VkRenderPass renderPass);
 
 		VhlDevice& m_VhlDevice;

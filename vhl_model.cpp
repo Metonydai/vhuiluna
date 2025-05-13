@@ -36,16 +36,7 @@ namespace vhl {
         createIndexBuffers(builder.indices);
     }
 
-    VhlModel::~VhlModel() 
-    {
-        vkDestroyBuffer(m_VhlDevice.device(), m_VertexBuffer, nullptr);
-        vkFreeMemory(m_VhlDevice.device(), m_VertexBufferMemory, nullptr);
-        if (m_HasIndexBuffer)
-        {
-            vkDestroyBuffer(m_VhlDevice.device(), m_IndexBuffer, nullptr);
-            vkFreeMemory(m_VhlDevice.device(), m_IndexBufferMemory, nullptr);
-        }
-    }
+    VhlModel::~VhlModel() {}
 
     std::unique_ptr<VhlModel> VhlModel::createModelFromFile(VhlDevice& device, const std::string& filepath)
     {
@@ -60,32 +51,28 @@ namespace vhl {
         m_VertexCount = static_cast<uint32_t>(vertices.size());
         assert(m_VertexCount >= 3 && "Vertex count must be at least 3");
         VkDeviceSize bufferSize = sizeof(vertices[0]) * m_VertexCount;
-        
-        VkBuffer stagingBuffer;
-        VkDeviceMemory stagingBufferMemory;
-        m_VhlDevice.createBuffer(
-            bufferSize,
+        uint32_t vertexSize = sizeof(vertices[0]);
+
+        VhlBuffer stagingBuffer{
+            m_VhlDevice,
+            vertexSize,
+            m_VertexCount,
             VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            stagingBuffer,
-            stagingBufferMemory);
+        };
+        
+        stagingBuffer.map();
+        stagingBuffer.writeToBuffer((void*)vertices.data());
 
-        void *data;
-        vkMapMemory(m_VhlDevice.device(), stagingBufferMemory, 0, bufferSize, 0, &data);
-        memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
-        vkUnmapMemory(m_VhlDevice.device(), stagingBufferMemory);
+        m_VertexBuffer = std::make_unique<VhlBuffer>(
+            m_VhlDevice,
+            vertexSize,
+            m_VertexCount,
+            VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+        );
 
-        m_VhlDevice.createBuffer(
-            bufferSize,
-            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-            m_VertexBuffer,
-            m_VertexBufferMemory);
-
-        m_VhlDevice.copyBuffer(stagingBuffer, m_VertexBuffer, bufferSize);
-
-        vkDestroyBuffer(m_VhlDevice.device(), stagingBuffer, nullptr);
-        vkFreeMemory(m_VhlDevice.device(), stagingBufferMemory, nullptr);
+        m_VhlDevice.copyBuffer(stagingBuffer.getBuffer(), m_VertexBuffer->getBuffer(), bufferSize);
     }
 
     void VhlModel::createIndexBuffers(const std::vector<uint32_t>& indices) 
@@ -96,32 +83,28 @@ namespace vhl {
         if (!m_HasIndexBuffer) return;
 
         VkDeviceSize bufferSize = sizeof(indices[0]) * m_IndexCount;
+        uint32_t indexSize = sizeof(indices[0]);
 
-        VkBuffer stagingBuffer;
-        VkDeviceMemory stagingBufferMemory;
-        m_VhlDevice.createBuffer(
-            bufferSize,
+        VhlBuffer stagingBuffer{
+            m_VhlDevice,
+            indexSize,
+            m_IndexCount,
             VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            stagingBuffer,
-            stagingBufferMemory);
+        };
+        
+        stagingBuffer.map();
+        stagingBuffer.writeToBuffer((void*)indices.data());
 
-        void *data;
-        vkMapMemory(m_VhlDevice.device(), stagingBufferMemory, 0, bufferSize, 0, &data);
-        memcpy(data, indices.data(), static_cast<size_t>(bufferSize));
-        vkUnmapMemory(m_VhlDevice.device(), stagingBufferMemory);
+        m_IndexBuffer = std::make_unique<VhlBuffer>(
+            m_VhlDevice,
+            indexSize,
+            m_IndexCount,
+            VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+        );
 
-        m_VhlDevice.createBuffer(
-            bufferSize,
-            VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-            m_IndexBuffer,
-            m_IndexBufferMemory);
-
-        m_VhlDevice.copyBuffer(stagingBuffer, m_IndexBuffer, bufferSize);
-
-        vkDestroyBuffer(m_VhlDevice.device(), stagingBuffer, nullptr);
-        vkFreeMemory(m_VhlDevice.device(), stagingBufferMemory, nullptr);
+        m_VhlDevice.copyBuffer(stagingBuffer.getBuffer(), m_IndexBuffer->getBuffer(), bufferSize);
     }
 
     void VhlModel::draw(VkCommandBuffer commandBuffer) 
@@ -134,12 +117,12 @@ namespace vhl {
 
     void VhlModel::bind(VkCommandBuffer commandBuffer) 
     {
-        VkBuffer buffers[] = { m_VertexBuffer };
+        VkBuffer buffers[] = { m_VertexBuffer->getBuffer() };
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
 
         if (m_HasIndexBuffer)
-            vkCmdBindIndexBuffer(commandBuffer, m_IndexBuffer, 0, VK_INDEX_TYPE_UINT32);
+            vkCmdBindIndexBuffer(commandBuffer, m_IndexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
     }
 
     std::vector<VkVertexInputBindingDescription> VhlModel::Vertex::getBindingDescriptions() 

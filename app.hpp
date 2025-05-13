@@ -5,6 +5,7 @@
 #include "vhl_game_object.hpp"
 #include "vhl_renderer.hpp"
 #include "vhl_window.hpp"
+#include "vhl_descriptors.hpp"
 
 // std
 #include <memory>
@@ -35,6 +36,7 @@ namespace vhl
 		VhlDevice m_VhlDevice{ m_VhlWindow };
 		VhlRenderer m_VhlRenderer{ m_VhlWindow, m_VhlDevice };
 
+		std::unique_ptr<VhlDescriptorPool> m_GlobalPool{};
 		std::vector<VhlGameObject> m_GameObjects;
 	};
 }
