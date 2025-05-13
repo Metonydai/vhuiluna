@@ -21,7 +21,8 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(deps/GLFW)
 add_subdirectory(deps/glm)
-
+add_subdirectory(deps/tinyobjloader)
+add_subdirectory(deps/stb)
 
 # Header/Source files
 file( GLOB ALL_HEADER_FILES "*.hpp")
@@ -31,7 +32,8 @@ source_group( "Source Files" FILES ${ALL_SOURCE_FILES} )
 
 add_executable(${PROJECT_NAME} ${ALL_SOURCE_FILES} ${ALL_HEADER_FILES})
 
-target_link_libraries(${PROJECT_NAME} PUBLIC cpp_compiler_flags)
+target_link_libraries(${PROJECT_NAME} PUBLIC cpp_compiler_flags stb tinyobjloader)
+
 # Vulkan-SDK
 target_include_directories(${PROJECT_NAME} PRIVATE ${Vulkan_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan)

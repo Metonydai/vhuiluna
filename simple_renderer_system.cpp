@@ -12,8 +12,7 @@ namespace vhl
     struct SimplePushConstantData 
     {
         glm::mat4 transform{1.f};
-        //glm::vec2 offset;
-        alignas(16) glm::vec3 color;
+        glm::mat4 normalMatrix{1.f};
     };
 
     SimpleRenderSystem::SimpleRenderSystem(VhlDevice& device, VkRenderPass renderPass) : m_VhlDevice(device) 
@@ -70,9 +69,8 @@ namespace vhl
         for (auto& obj : gameObjects) 
         {
             SimplePushConstantData push{};
-            //push.offset = obj.transform.translation;
-            push.color = obj.color;
             push.transform = projectView * obj.transform.mat4();
+            push.normalMatrix = obj.transform.normalMatrix();
         
             vkCmdPushConstants(
                 commandBuffer,

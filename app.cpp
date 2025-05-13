@@ -26,7 +26,7 @@ namespace vhl
         SimpleRenderSystem simpleRenderSystem(m_VhlDevice, m_VhlRenderer.getSwapChainRenderPass());
         VhlCamera camera{};
         //camera.setViewDirection(glm::vec3(0.f), glm::vec3(0.5f, 0.f, 1.f));
-        camera.setViewTarget(glm::vec3(0.f, -1.f, -1.f), glm::vec3(0.f, 0.f, 2.5f));
+        //camera.setViewTarget(glm::vec3(-2.f, -2.f, 2.f), glm::vec3(0.f, 0.f, 2.5f));
 
         auto viewerObject = VhlGameObject::createGameObject();
         KeyboardMovementController cameraController{};
@@ -45,9 +45,9 @@ namespace vhl
             camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
             float aspect = m_VhlRenderer.getAspectRatio();
-            float a = 4.0;
-            camera.setOrthographicProjection(-aspect*a, aspect*a, -a, a, -a, a);
-            //camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
+            //float a = 4.0;
+            //camera.setOrthographicProjection(-aspect*a, aspect*a, -a, a, -a, a);
+            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
 
             if (auto commandBuffer = m_VhlRenderer.beginFrame())
             {
@@ -59,66 +59,6 @@ namespace vhl
         }
 
         vkDeviceWaitIdle(m_VhlDevice.device());
-    }
-
-    // temporary helper function, creates a 1x1x1 cube centered at offset
-    std::shared_ptr<VhlModel> createCubeModel(VhlDevice& device, glm::vec3 offset) {
-        std::vector<VhlModel::Vertex> vertices
-        {
-            // left face (white)
-            {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}},
-            {{-.5f, .5f, .5f}, {.9f, .9f, .9f}},
-            {{-.5f, -.5f, .5f}, {.9f, .9f, .9f}},
-            {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}},
-            {{-.5f, .5f, -.5f}, {.9f, .9f, .9f}},
-            {{-.5f, .5f, .5f}, {.9f, .9f, .9f}},
-        
-            // right face (yellow)
-            {{.5f, -.5f, -.5f}, {.8f, .8f, .1f}},
-            {{.5f, .5f, .5f}, {.8f, .8f, .1f}},
-            {{.5f, -.5f, .5f}, {.8f, .8f, .1f}},
-            {{.5f, -.5f, -.5f}, {.8f, .8f, .1f}},
-            {{.5f, .5f, -.5f}, {.8f, .8f, .1f}},
-            {{.5f, .5f, .5f}, {.8f, .8f, .1f}},
-        
-            // top face (orange, remember y axis points down)
-            {{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
-            {{.5f, -.5f, .5f}, {.9f, .6f, .1f}},
-            {{-.5f, -.5f, .5f}, {.9f, .6f, .1f}},
-            {{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
-            {{.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
-            {{.5f, -.5f, .5f}, {.9f, .6f, .1f}},
-        
-            // bottom face (red)
-            {{-.5f, .5f, -.5f}, {.8f, .1f, .1f}},
-            {{.5f, .5f, .5f}, {.8f, .1f, .1f}},
-            {{-.5f, .5f, .5f}, {.8f, .1f, .1f}},
-            {{-.5f, .5f, -.5f}, {.8f, .1f, .1f}},
-            {{.5f, .5f, -.5f}, {.8f, .1f, .1f}},
-            {{.5f, .5f, .5f}, {.8f, .1f, .1f}},
-        
-            // nose face (blue)
-            {{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
-            {{.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
-            {{-.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
-            {{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
-            {{.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
-            {{.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
-        
-            // tail face (green)
-            {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
-            {{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
-            {{-.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
-            {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
-            {{.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
-            {{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
-        };
-
-        for (auto& v : vertices) 
-        {
-            v.position += offset;
-        }
-        return std::make_shared<VhlModel>(device, vertices);
     }
 
     void HuiApp::loadGameObjects()
@@ -144,14 +84,22 @@ namespace vhl
         m_GameObjects.push_back(std::move(triangle));
         */
 
-        std::shared_ptr<VhlModel> vhlModel = createCubeModel(m_VhlDevice, {.0f, .0f, .0f});
-        auto cube = VhlGameObject::createGameObject();
-        cube.model = vhlModel;
-        cube.transform.translation = { .0f, .0f, 2.5f };
-        cube.transform.scale = { .5f, .5f, .5f };
-        
-        m_GameObjects.push_back(std::move(cube));
+        std::shared_ptr<VhlModel> vhlModel = VhlModel::createModelFromFile(m_VhlDevice, "models/flat_vase.obj");
 
+        auto flatVase = VhlGameObject::createGameObject();
+        flatVase.model = vhlModel;
+        flatVase.transform.translation = { -0.5f, .5f, 2.5f };
+        flatVase.transform.scale = glm::vec3{ 3.0f, 1.5f, 3.0f };
+        
+        m_GameObjects.push_back(std::move(flatVase));
+
+        vhlModel = VhlModel::createModelFromFile(m_VhlDevice, "models/smooth_vase.obj");
+        auto smoothVase = VhlGameObject::createGameObject();
+        smoothVase.model = vhlModel;
+        smoothVase.transform.translation = { 0.5f, .5f, 2.5f };
+        smoothVase.transform.scale = glm::vec3{ 3.0f, 1.5f, 3.0f };
+        
+        m_GameObjects.push_back(std::move(smoothVase));
     }
 
     void HuiApp::createFractal(std::vector<VhlModel::Vertex>& vertices, int level, glm::vec3 top, glm::vec3 left, glm::vec3 right)
