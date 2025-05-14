@@ -89,7 +89,7 @@ namespace vhl
                 &push);
             obj.model->bind(frameInfo.commandBuffer);
             obj.model->draw(frameInfo.commandBuffer);
-          }
+        }
     }
 
 }

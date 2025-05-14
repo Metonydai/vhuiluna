@@ -24,8 +24,6 @@ namespace vhl
 		void renderGameObjects(FrameInfo& frameInfo);
 
 	private:
-		void loadGameObjects();
-
 		void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
 		void createPipeline(VkRenderPass renderPass);
 

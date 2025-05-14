@@ -60,8 +60,8 @@ endforeach()
 add_custom_target(shaders ALL DEPENDS ${SPV_SHADERS} SOURCES ${SHADERS})
 
 # Header/Source files
-file( GLOB ALL_HEADER_FILES "*.hpp")
-file( GLOB ALL_SOURCE_FILES "*.cpp")
+file( GLOB_RECURSE ALL_HEADER_FILES ${PROJECT_SOURCE_DIR}/src/*.hpp)
+file( GLOB_RECURSE ALL_SOURCE_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 source_group( "Header Files" FILES ${ALL_HEADER_FILES} )
 source_group( "Source Files" FILES ${ALL_SOURCE_FILES} )
 
@@ -70,14 +70,18 @@ add_executable(${PROJECT_NAME} ${ALL_SOURCE_FILES} ${ALL_HEADER_FILES})
 add_dependencies(${PROJECT_NAME} shaders)
 
 
-target_link_libraries(${PROJECT_NAME} PUBLIC cpp_compiler_flags stb tinyobjloader)
+target_link_libraries(${PROJECT_NAME} PUBLIC
+  cpp_compiler_flags
+  stb 
+  tinyobjloader
+  Vulkan::Vulkan
+  glfw
+  )
 
-# Vulkan-SDK
-target_include_directories(${PROJECT_NAME} PRIVATE ${Vulkan_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::Vulkan)
 
-# GLFW
-target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
-#target_link_libraries(${PROJECT_NAME} PRIVATE glm)
+target_include_directories(${PROJECT_NAME} PUBLIC 
+  ${Vulkan_INCLUDE_DIRS}
+  ${PROJECT_SOURCE_DIR}/src
+  )
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})

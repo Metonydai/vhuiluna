@@ -60,8 +60,8 @@ namespace vhl
             configInfo.renderPass != VK_NULL_HANDLE && 
             "Cannot create graphics pipeline:: no renderPass provided in configInfo");
 
-        auto vertShaderCode = readFile("shaders/shader.vert.spv");
-        auto fragShaderCode = readFile("shaders/shader.frag.spv"); 
+        auto vertShaderCode = readFile(vertFilepath);
+        auto fragShaderCode = readFile(fragFilepath);
 
         createShaderModule(vertShaderCode, &m_VertShaderModule);
         createShaderModule(fragShaderCode, &m_FragShaderModule);
@@ -82,8 +82,8 @@ namespace vhl
         shaderStages[1].pNext = nullptr;
         shaderStages[1].pSpecializationInfo = nullptr;
 
-        auto bindingDescriptions = VhlModel::Vertex::getBindingDescriptions();
-        auto attributeDescriptions = VhlModel::Vertex::getAttributeDescriptions();
+        auto& bindingDescriptions = configInfo.bindingDescriptions;
+        auto& attributeDescriptions = configInfo.attributeDescriptions;
 
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -211,6 +211,9 @@ namespace vhl
         configInfo.dynamicStateInfo.pDynamicStates = configInfo.dynamicStateEnables.data();
         configInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(configInfo.dynamicStateEnables.size());
         configInfo.dynamicStateInfo.flags = 0;
+
+        configInfo.bindingDescriptions = VhlModel::Vertex::getBindingDescriptions();
+        configInfo.attributeDescriptions = VhlModel::Vertex::getAttributeDescriptions();
     }
 
 

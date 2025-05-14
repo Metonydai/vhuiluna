@@ -2,7 +2,8 @@
 
 #include "keyboard_movement_controller.hpp"
 #include "vhl_buffer.hpp"
-#include "simple_renderer_system.hpp"
+#include "systems/simple_renderer_system.hpp"
+#include "systems/point_light_system.hpp"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -17,7 +18,8 @@ namespace vhl
 {
     struct GlobalUBO
     {
-        glm::mat4 projectionView{1.f};
+        glm::mat4 projection{1.f};
+        glm::mat4 view{1.f};
         glm::vec4 ambientLightColor{1.f, 1.f, 1.f, .10f}; // w is intensity
         glm::vec3 lightPosition{-1.f};
         alignas(16) glm::vec4 lightColor{1.f}; // w is intensity
@@ -66,6 +68,12 @@ namespace vhl
             m_VhlDevice, 
             m_VhlRenderer.getSwapChainRenderPass(), 
             globalSetLayout->getDescriptorSetLayout());
+
+        PointLightSystem pointLightSystem(
+            m_VhlDevice, 
+            m_VhlRenderer.getSwapChainRenderPass(), 
+            globalSetLayout->getDescriptorSetLayout());
+
         VhlCamera camera{};
         //camera.setViewDirection(glm::vec3(0.f), glm::vec3(0.5f, 0.f, 1.f));
         //camera.setViewTarget(glm::vec3(-2.f, -2.f, 2.f), glm::vec3(0.f, 0.f, 2.5f));
@@ -98,13 +106,15 @@ namespace vhl
                 FrameInfo frameInfo{frameIndex, frameTime, commandBuffer, camera, globalDescriptorSets[frameIndex], m_GameObjects};
                 // update
                 GlobalUBO ubo{};
-                ubo.projectionView = camera.getProjection() * camera.getView();
+                ubo.projection = camera.getProjection();
+                ubo.view = camera.getView();
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();
 
                 // render
                 m_VhlRenderer.beginSwapChainRenderPass(commandBuffer);
                 simpleRenderSystem.renderGameObjects(frameInfo);
+                pointLightSystem.render(frameInfo);
                 m_VhlRenderer.endSwapChainRenderPass(commandBuffer);
                 m_VhlRenderer.endFrame();
             }
