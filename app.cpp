@@ -18,7 +18,9 @@ namespace vhl
     struct GlobalUBO
     {
         glm::mat4 projectionView{1.f};
-        glm::vec3 lightDirection = glm::normalize(glm::vec3{1.f, -3.f, -1.f});
+        glm::vec4 ambientLightColor{1.f, 1.f, 1.f, .10f}; // w is intensity
+        glm::vec3 lightPosition{-1.f};
+        alignas(16) glm::vec4 lightColor{1.f}; // w is intensity
     };
 
     HuiApp::HuiApp() 
@@ -69,6 +71,7 @@ namespace vhl
         //camera.setViewTarget(glm::vec3(-2.f, -2.f, 2.f), glm::vec3(0.f, 0.f, 2.5f));
 
         auto viewerObject = VhlGameObject::createGameObject();
+        viewerObject.transform.translation.z = -2.5f;
         KeyboardMovementController cameraController{};
 
         auto currentTime = std::chrono::high_resolution_clock::now();
@@ -137,7 +140,7 @@ namespace vhl
 
         auto flatVase = VhlGameObject::createGameObject();
         flatVase.model = vhlModel;
-        flatVase.transform.translation = { -0.5f, .5f, 2.5f };
+        flatVase.transform.translation = { -0.5f, .5f, 0.f };
         flatVase.transform.scale = glm::vec3{ 3.0f, 1.5f, 3.0f };
         
         m_GameObjects.push_back(std::move(flatVase));
@@ -145,10 +148,19 @@ namespace vhl
         vhlModel = VhlModel::createModelFromFile(m_VhlDevice, "models/smooth_vase.obj");
         auto smoothVase = VhlGameObject::createGameObject();
         smoothVase.model = vhlModel;
-        smoothVase.transform.translation = { 0.5f, .5f, 2.5f };
+        smoothVase.transform.translation = { 0.5f, .5f, 0.f };
         smoothVase.transform.scale = glm::vec3{ 3.0f, 1.5f, 3.0f };
-        
+       
         m_GameObjects.push_back(std::move(smoothVase));
+
+
+        vhlModel = VhlModel::createModelFromFile(m_VhlDevice, "models/quad.obj");
+        auto floor = VhlGameObject::createGameObject();
+        floor.model = vhlModel;
+        floor.transform.translation = { 0.f, 0.5f, 0.f };
+        floor.transform.scale = glm::vec3{ 3.0f, 1.0f, 3.0f };
+        
+        m_GameObjects.push_back(std::move(floor));
     }
 
     void HuiApp::createFractal(std::vector<VhlModel::Vertex>& vertices, int level, glm::vec3 top, glm::vec3 left, glm::vec3 right)

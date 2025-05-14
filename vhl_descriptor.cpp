@@ -36,7 +36,7 @@ namespace vhl {
         : m_VhlDevice{vhlDevice}, m_Bindings{bindings} 
     {
         std::vector<VkDescriptorSetLayoutBinding> setLayoutBindings{};
-        for (auto kv : bindings) 
+        for (const auto& kv : bindings) 
         {
             setLayoutBindings.push_back(kv.second);
         }
@@ -214,7 +214,7 @@ namespace vhl {
         {
             write.dstSet = set;
         }
-        vkUpdateDescriptorSets(m_Pool.m_VhlDevice.device(), m_Writes.size(), m_Writes.data(), 0, nullptr);
+        vkUpdateDescriptorSets(m_Pool.m_VhlDevice.device(), static_cast<uint32_t>(m_Writes.size()), m_Writes.data(), 0, nullptr);
     }
  
 }  // namespace vhl
