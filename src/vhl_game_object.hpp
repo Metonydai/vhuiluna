@@ -23,6 +23,11 @@ namespace vhl {
         glm::mat3 normalMatrix();
     };
 
+    struct PointLightComponent
+    {
+        float lightIntensity = 1.0f;
+    };
+
     class VhlGameObject 
     {
     public:
@@ -35,6 +40,10 @@ namespace vhl {
             return VhlGameObject{currentId++};
         }
 
+        static VhlGameObject makePointLight(
+            float intensity = 10.f, float radius = 0.1f, glm::vec3 color = glm::vec3(1.f));
+        
+
         VhlGameObject(const VhlGameObject&) = delete;
         VhlGameObject& operator=(const VhlGameObject&) = delete;
         VhlGameObject(VhlGameObject&&) = default;
@@ -42,10 +51,12 @@ namespace vhl {
 
         id_t getId() { return id; }
 
-        std::shared_ptr<VhlModel> model{};
         glm::vec3 color{};
         TransformComponent transform{};
 
+        // Optional pointer components
+        std::shared_ptr<VhlModel> model{};
+        std::unique_ptr<PointLightComponent> pointLight = nullptr;
     private:
         VhlGameObject(id_t objId) : id{objId} {}
 
