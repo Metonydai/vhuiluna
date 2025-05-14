@@ -7,6 +7,7 @@
 
 // std
 #include <memory>
+#include <unordered_map>
 
 namespace vhl {
 
@@ -26,6 +27,7 @@ namespace vhl {
     {
     public:
         using id_t = unsigned int;
+        using Map = std::unordered_map<id_t, VhlGameObject>;
 
         static VhlGameObject createGameObject() 
         {

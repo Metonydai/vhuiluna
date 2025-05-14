@@ -21,9 +21,7 @@ namespace vhl
 		SimpleRenderSystem(const SimpleRenderSystem&) = delete;
 		SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
 
-		void renderGameObjects(
-			FrameInfo& frameInfo,
-			std::vector<VhlGameObject>& gameObjects);
+		void renderGameObjects(FrameInfo& frameInfo);
 
 	private:
 		void loadGameObjects();

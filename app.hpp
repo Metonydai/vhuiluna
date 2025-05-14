@@ -37,6 +37,6 @@ namespace vhl
 		VhlRenderer m_VhlRenderer{ m_VhlWindow, m_VhlDevice };
 
 		std::unique_ptr<VhlDescriptorPool> m_GlobalPool{};
-		std::vector<VhlGameObject> m_GameObjects;
+		VhlGameObject::Map m_GameObjects;
 	};
 }

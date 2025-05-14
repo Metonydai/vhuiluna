@@ -50,7 +50,7 @@ namespace vhl
         }
 
         auto globalSetLayout = VhlDescriptorSetLayout::Builder(m_VhlDevice)
-            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
             .build();
 
         std::vector<VkDescriptorSet> globalDescriptorSets(VhlSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -95,7 +95,7 @@ namespace vhl
             if (auto commandBuffer = m_VhlRenderer.beginFrame())
             {
                 int frameIndex = m_VhlRenderer.getFrameIndex();
-                FrameInfo frameInfo{frameIndex, frameTime, commandBuffer, camera, globalDescriptorSets[frameIndex]};
+                FrameInfo frameInfo{frameIndex, frameTime, commandBuffer, camera, globalDescriptorSets[frameIndex], m_GameObjects};
                 // update
                 GlobalUBO ubo{};
                 ubo.projectionView = camera.getProjection() * camera.getView();
@@ -104,7 +104,7 @@ namespace vhl
 
                 // render
                 m_VhlRenderer.beginSwapChainRenderPass(commandBuffer);
-                simpleRenderSystem.renderGameObjects(frameInfo, m_GameObjects);
+                simpleRenderSystem.renderGameObjects(frameInfo);
                 m_VhlRenderer.endSwapChainRenderPass(commandBuffer);
                 m_VhlRenderer.endFrame();
             }
@@ -143,7 +143,7 @@ namespace vhl
         flatVase.transform.translation = { -0.5f, .5f, 0.f };
         flatVase.transform.scale = glm::vec3{ 3.0f, 1.5f, 3.0f };
         
-        m_GameObjects.push_back(std::move(flatVase));
+        m_GameObjects.emplace(flatVase.getId(), std::move(flatVase));
 
         vhlModel = VhlModel::createModelFromFile(m_VhlDevice, "models/smooth_vase.obj");
         auto smoothVase = VhlGameObject::createGameObject();
@@ -151,7 +151,7 @@ namespace vhl
         smoothVase.transform.translation = { 0.5f, .5f, 0.f };
         smoothVase.transform.scale = glm::vec3{ 3.0f, 1.5f, 3.0f };
        
-        m_GameObjects.push_back(std::move(smoothVase));
+        m_GameObjects.emplace(smoothVase.getId(), std::move(smoothVase));
 
 
         vhlModel = VhlModel::createModelFromFile(m_VhlDevice, "models/quad.obj");
@@ -160,7 +160,7 @@ namespace vhl
         floor.transform.translation = { 0.f, 0.5f, 0.f };
         floor.transform.scale = glm::vec3{ 3.0f, 1.0f, 3.0f };
         
-        m_GameObjects.push_back(std::move(floor));
+        m_GameObjects.emplace(floor.getId(), std::move(floor));
     }
 
     void HuiApp::createFractal(std::vector<VhlModel::Vertex>& vertices, int level, glm::vec3 top, glm::vec3 left, glm::vec3 right)
