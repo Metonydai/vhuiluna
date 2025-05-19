@@ -89,7 +89,7 @@ namespace vhl
             float aspect = m_VhlRenderer.getAspectRatio();
             //float a = 4.0;
             //camera.setOrthographicProjection(-aspect*a, aspect*a, -a, a, -a, a);
-            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
+            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 100.f);
 
             if (auto commandBuffer = m_VhlRenderer.beginFrame())
             {
@@ -99,14 +99,18 @@ namespace vhl
                 GlobalUBO ubo{};
                 ubo.projection = camera.getProjection();
                 ubo.view = camera.getView();
+                ubo.inverseView = camera.getInverseView();
                 pointLightSystem.update(frameInfo, ubo);
                 uboBuffers[frameIndex]->writeToBuffer(&ubo);
                 uboBuffers[frameIndex]->flush();
 
                 // render
                 m_VhlRenderer.beginSwapChainRenderPass(commandBuffer);
+
+                // order here matters
                 simpleRenderSystem.renderGameObjects(frameInfo);
                 pointLightSystem.render(frameInfo);
+
                 m_VhlRenderer.endSwapChainRenderPass(commandBuffer);
                 m_VhlRenderer.endFrame();
             }

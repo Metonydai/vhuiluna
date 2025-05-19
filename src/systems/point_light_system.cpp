@@ -6,6 +6,7 @@
 #include <glm/gtc/constants.hpp>
 
 #include <stdexcept>
+#include <algorithm>
 
 namespace vhl 
 {
@@ -49,6 +50,7 @@ namespace vhl
     {
         PipelineConfigInfo pipelineConfig{};
         VhlPipeline::defaultPipelineConfigInfo(pipelineConfig);
+        VhlPipeline::enableAlphaBlending(pipelineConfig);
         pipelineConfig.attributeDescriptions.clear();
         pipelineConfig.bindingDescriptions.clear();
         pipelineConfig.renderPass = renderPass;
@@ -87,6 +89,23 @@ namespace vhl
     {
         m_VhlPipeline->bind(frameInfo.commandBuffer);
 
+        // sort lights
+        std::vector<std::pair<float, VhlGameObject::id_t>> pairsArray;
+
+        for (auto& kv : frameInfo.gameObjects)
+        {
+            auto& obj = kv.second;
+            if (obj.pointLight == nullptr) continue;
+
+            // calculate distance
+            auto offset = frameInfo.camera.getPosition() - obj.transform.translation;
+            float disSquared = glm::dot(offset, offset);
+            pairsArray.emplace_back(disSquared, obj.getId());
+        }
+
+        std::sort(pairsArray.begin(), pairsArray.end(), 
+            [](const auto& a, const auto& b){ return a.first > b.first; });
+
         vkCmdBindDescriptorSets(
             frameInfo.commandBuffer,
             VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -97,10 +116,11 @@ namespace vhl
             nullptr
         );
 
-        for (auto& kv : frameInfo.gameObjects)
+        // iterate through sorted lights in reverse order
+        // however the pairsArray had already sorted in reverse order!
+        for (auto& p : pairsArray)
         {
-            auto& obj = kv.second;
-            if (obj.pointLight == nullptr) continue;
+            auto& obj = frameInfo.gameObjects.at(p.second);
 
             PointLightPushConstants push{};
             push.position = glm::vec4(obj.transform.translation, 1.0);
