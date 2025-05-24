@@ -16,6 +16,9 @@ namespace vhl
 	class HuiApp
 	{
 	public:
+	    uint32_t pointLightId;
+
+	public:
 		static constexpr int WIDTH = 1920;
 		static constexpr int HEIGHT = 1080;
 

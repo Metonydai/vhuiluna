@@ -167,4 +167,12 @@ namespace vhl {
         vkCmdEndRenderPass(commandBuffer);
     }
 
+    void VhlRenderer::beginShadowRenderPass(VkCommandBuffer commandBuffer) 
+    {
+    }
+
+    void VhlRenderer::endShadowRenderPass(VkCommandBuffer commandBuffer)
+    {
+    }
+
 }  // namespace Vhl

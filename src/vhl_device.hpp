@@ -44,6 +44,7 @@ namespace vhl
 
         VkCommandPool getCommandPool() { return m_CommandPool; }
         VkDevice device() { return m_Device; }
+        VkPhysicalDevice physicalDevice() { return m_PhysicalDevice; }
         VkSurfaceKHR surface() { return m_Surface; }
         VkQueue graphicsQueue() { return m_GraphicsQueue; }
         VkQueue presentQueue() { return m_PresentQueue; }
@@ -53,6 +54,7 @@ namespace vhl
         QueueFamilyIndices findPhysicalQueueFamilies() { return findQueueFamilies(m_PhysicalDevice); }
         VkFormat findSupportedFormat(
             const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+        VkFormat findDepthFormat();
 
         // Buffer Helper Functions
         void createBuffer(

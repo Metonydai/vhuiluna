@@ -38,6 +38,8 @@ namespace vhl {
         void endFrame();
         void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
         void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
+        void beginShadowRenderPass(VkCommandBuffer commandBuffer);
+        void endShadowRenderPass(VkCommandBuffer commandBuffer);
 
     private:
         void createCommandBuffers();

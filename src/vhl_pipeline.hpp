@@ -46,8 +46,8 @@ namespace vhl
         static void defaultPipelineConfigInfo(PipelineConfigInfo& configInfo);
         static void enableAlphaBlending(PipelineConfigInfo& configInfo);
 
-    private:
         static std::vector<char> readFile(const std::string& filepath);
+    private:
 
         void createGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo);
 

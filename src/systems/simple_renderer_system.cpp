@@ -1,4 +1,5 @@
 #include "simple_renderer_system.hpp"
+#include "pushConstantData.h"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
@@ -9,12 +10,6 @@
 
 namespace vhl 
 {
-    struct SimplePushConstantData 
-    {
-        glm::mat4 modelMatrix{1.f};
-        glm::mat4 normalMatrix{1.f};
-    };
-
     SimpleRenderSystem::SimpleRenderSystem(VhlDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) : m_VhlDevice(device) 
     {
         createPipelineLayout(globalSetLayout);

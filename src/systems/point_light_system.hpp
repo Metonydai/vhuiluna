@@ -22,7 +22,9 @@ namespace vhl
 		PointLightSystem& operator=(const PointLightSystem&) = delete;
 
 		void update(FrameInfo& frameInfo, GlobalUBO& ubo);
+		void update(FrameInfo& frameInfo, UniformDataScene& ubo);
 		void render(FrameInfo& frameInfo);
+		void render(FrameInfo& frameInfo, DescriptorSets& bindingDescriptorSets);
 
 	private:
 		void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);

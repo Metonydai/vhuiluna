@@ -17,13 +17,17 @@ struct PointLight {
     vec4 color; // w is intensity
 };
 
-layout(set = 0, binding = 0) uniform GlobalUbo {
+layout (binding = 0) uniform GlobalUbo {
     mat4 projectionMatrix;
     mat4 viewMatrix;
     mat4 inverseViewMatrix;
+    mat4 modelMatrix;
+    mat4 depthViewProjection;
     vec4 ambientLightColor; // w is intensity
     PointLight pointLight[10];
     int numLights;
+    float zNear;
+    float zFar;
 } ubo;
 
 layout(push_constant) uniform Push {
@@ -35,8 +39,8 @@ layout(push_constant) uniform Push {
 void main()
 {
     fragOffset = OFFSETS[gl_VertexIndex];
-    vec3 cameraRightWorld = {ubo.viewMatrix[0][0], ubo.viewMatrix[1][0], ubo.viewMatrix[2][0]};
-    vec3 cameraUpWorld = {ubo.viewMatrix[0][1], ubo.viewMatrix[1][1], ubo.viewMatrix[2][1]};
+    vec3 cameraRightWorld = {ubo.viewMatrix[0][0], ubo.viewMatrix[1][0], ubo.viewMatrix[2][0]}; // first row
+    vec3 cameraUpWorld = {ubo.viewMatrix[0][1], ubo.viewMatrix[1][1], ubo.viewMatrix[2][1]}; // second row
 
     //vec3 positionWorld = ubo.lightPosition.xyz 
     //    + LIGHT_RADIUS * fragOffset.x * cameraRightWorld

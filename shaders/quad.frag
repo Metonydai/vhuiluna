@@ -1,7 +1,10 @@
 #version 450
 
-layout (location = 0) in vec2 fragOffset;
-layout (location = 0) out vec4 outColor;
+layout (binding = 1) uniform sampler2D samplerColor;
+
+layout (location = 0) in vec2 inUV;
+
+layout (location = 0) out vec4 outFragColor;
 
 struct PointLight {
     vec4 position; // ignore w
@@ -21,18 +24,17 @@ layout (binding = 0) uniform GlobalUbo {
     float zFar;
 } ubo;
 
-layout(push_constant) uniform Push {
-    vec4 position;
-    vec4 color;
-    float radius;
-} push;
-
-const float M_PI = 3.1415926538;
-
-void main()
+float LinearizeDepth(float depth)
 {
-    float disSquare = dot(fragOffset, fragOffset);
-    if (disSquare >= 1) { discard; }
+  float n = ubo.zNear;
+  float f = ubo.zFar;
+  float z = depth;
+  return (2.0 * n) / (f + n - z * (f - n));	
+}
 
-    outColor = vec4(push.color.xyz, 0.5 * (cos(sqrt(disSquare) * M_PI) + 1.0));
+void main() 
+{
+	float depth = texture(samplerColor, inUV).r;
+	outFragColor = vec4(vec3(LinearizeDepth(depth)), 1.0);
+
 }
