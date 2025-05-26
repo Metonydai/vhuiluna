@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(huiEngine)
+project(vhuiluna)
 
 find_package(Vulkan REQUIRED)
 find_program(glslangValidator_exe NAMES glslangValidator HINTS "$ENV{VULKAN_SDK}/bin")
@@ -84,4 +84,11 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   ${PROJECT_SOURCE_DIR}/src
   )
 
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
+
+if (MSVC)
+  set_target_properties(${PROJECT_NAME} PROPERTIES
+      VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+  )
+
+  set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
+endif()
